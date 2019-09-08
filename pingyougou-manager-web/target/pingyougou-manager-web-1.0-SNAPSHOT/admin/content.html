@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html xmlns:v-bind="http://www.w3.org/1999/xhtml" xmlns:v-on="http://www.w3.org/1999/xhtml">
+
+<head>
+    <!-- 页面meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>广告管理</title>
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <link rel="stylesheet" href="../plugins/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../plugins/adminLTE/css/AdminLTE.css">
+    <link rel="stylesheet" href="../plugins/adminLTE/css/skins/_all-skins.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+	<script src="../plugins/jQuery/jquery-2.2.3.min.js"></script>
+    <script src="../plugins/bootstrap/js/bootstrap.min.js"></script>
+	<script src="../js/vue.min.js"></script>
+    
+</head>
+
+<body class="hold-transition skin-red sidebar-mini">
+  <!-- .box-body -->
+                
+                    <div class="box-header with-border">
+                        <h3 class="box-title">广告管理</h3>
+                    </div>
+
+                    <div class="box-body">
+
+                        <!-- 数据表格 -->
+                        <div class="table-box" id="contentcategory_grid">
+
+                            <!--工具栏-->
+                            <div class="pull-left">
+                                <div class="form-group form-inline">
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-default" title="新建" data-toggle="modal" data-target="#editModal" ><i class="fa fa-file-o"></i> 新建</button>
+                                        <button onclick="delContentType()" type="button" class="btn btn-default" title="删除" ><i class="fa fa-trash-o"></i> 删除</button>
+                                        <button type="button" class="btn btn-default" title="开启" onclick='confirm("你确认要开启吗？")'><i class="fa fa-check"></i> 开启</button>
+                                        <button type="button" class="btn btn-default" title="屏蔽" onclick='confirm("你确认要屏蔽吗？")'><i class="fa fa-ban"></i> 屏蔽</button>
+                                        <button type="button" class="btn btn-default" title="刷新" onclick="window.location.reload();"><i class="fa fa-refresh"></i> 刷新</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="box-tools pull-right">
+                                <div class="has-feedback">
+							                                  
+                                </div>
+                            </div>
+                            <!--工具栏/-->
+
+			                  <!--数据列表-->
+			                  <table id="dataList" class="table table-bordered table-striped table-hover dataTable">
+			                      <thead>
+			                          <tr>
+			                              <th class="" style="padding-right:0px">
+			                                  <input id="selall" type="checkbox" class="icheckbox_square-blue">
+			                              </th> 
+										  <th class="sorting_asc">广告ID</th>
+									      <th class="sorting">分类ID</th>
+									      <th class="sorting">标题</th>
+									      <th class="sorting">URL</th>		
+									      <th class="sorting">图片</th>
+										  <th class="sorting">排序</th>
+ 										  <th class="sorting">是否有效</th>
+										  <th class="text-center">操作</th>
+			                          </tr>
+			                      </thead>
+			                      <tbody>
+			                          <tr v-for="entity in contentList">
+			                              <td><input  type="checkbox" ></td>
+				                          <td>{{entity.id}}</td>
+									      <td>{{entity.categoryId}}</td>
+									      <td>{{entity.title}}</td>
+									      <td>{{entity.url}}</td>
+										  <th >1</th>
+									      <td>{{entity.sortOrder}}</td>
+										  <td>{{entity.status== 1?"有效":"无效"}}</td>
+										  <td class="text-center">
+											  <button type="button" class="btn bg-olive btn-xs" data-toggle="modal" data-target="#editModal" v-on:click="update(entity.id)">修改</button>
+										  </td>
+			                          </tr>
+			                      </tbody>
+			                  </table>
+			                  <!--数据列表/-->
+							<ul class="pagination pagination-sm">
+								<li><a href="javascript:void(0);" onclick="shouye();">首页</a></li>
+								<li><a href="javascript:void(0);" onclick="shangyiye();">上一页</a></li>
+								<template v-for="n in contentPage">
+									<li><a href="javascript:void(0);" v-on:click="search(n);">{{n}}</a></li>
+								</template>
+								<li><a href="javascript:void(0);" onclick="xiayiye();">下一页</a></li>
+								<li><a href="javascript:void(0);" onclick="weiye();">尾页</a></li>
+							</ul>
+                        </div>
+                        <!-- 数据表格 /-->
+                     </div>
+                    <!-- /.box-body -->
+
+		
+<!-- 编辑窗口 -->
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog" >
+	<div class="modal-content">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+			<h3 id="myModalLabel">广告编辑</h3>
+		</div>
+		<div class="modal-body" >
+			<form id="addContentTypeForm">
+			<table class="table table-bordered table-striped"  width="800px">
+				<tr>
+					<td>  <input name="id" type="hidden" name="id" class="form-control" id="ide"></td>
+				</tr>
+				<tr>
+		      		<td>广告分类</td>
+		      		<td>
+						<input  class="form-control" placeholder="分类" name="categoryId" id="categoryId">
+					</td>
+		      	</tr>
+		      	<tr>
+		      		<td>标题</td>
+		      		<td><input  class="form-control" placeholder="标题" name="title" id="title">  </td>
+		      	</tr>
+			    <tr>
+		      		<td>URL</td>
+		      		<td><input  class="form-control" placeholder="URL" name="url" id="url">  </td>
+		      	</tr>	
+		      	<tr>
+		      		<td>排序</td>
+		      		<td><input  class="form-control" placeholder="排序" name="pic" id="pic">  </td>
+		      	</tr>			      	
+		      	<tr>
+		      		<td>广告图片</td>
+		      		<td>
+						<table>
+							<tr>
+								<td>
+								<input type="file" id="file" />				                
+					                <button class="btn btn-primary" type="button" >
+				                   		上传
+					                </button>	
+					            </td>
+								<td>
+									1
+								</td>
+							</tr>						
+						</table>
+		      		</td>
+		      	</tr>	      
+		      	<tr>
+		      		<td>是否有效</td>
+		      		<td>
+		      		   <input type="radio" class="icheckbox_square-blue" value="1" name="status">有效
+						<input type="radio" class="icheckbox_square-blue" value="2" name="status">无效
+		      		</td>
+		      	</tr>  	
+			 </table>
+			</form>
+		</div>
+		<div class="modal-footer">						
+			<button class="btn btn-success" data-dismiss="modal" aria-hidden="true" onclick="addEmp()">保存</button>
+			<button class="btn btn-default" data-dismiss="modal" aria-hidden="true">关闭</button>
+		</div>
+	  </div>
+	</div>
+</div>
+  <script type="text/javascript">
+	  var vm;
+	  $(function () {
+		  $.ajax({
+			  type: "post",
+			  url: "../content/search.do",
+			  data: "",
+			  dataType: "",
+			  success: function (rows) {
+				  vm = new Vue({
+					  el: '#contentcategory_grid',
+					  data: {
+						  contentList: rows.rows,
+						  contentPage: rows.totalPage,
+						  pageNum:rows.pageNum,
+						  pageSize:rows.pageSize,
+						  total:rows.total
+					  }
+				  })
+			  },
+			  error: function () {
+				  alert("系统错误，请联系管理员！");
+			  }
+		  })
+	  })
+
+	  function search(n) {
+		  $.ajax({
+			  type: "post",
+			  url: "../content/search.do",
+			  data: {title: $("#title").val()},
+			  dataType: "json",
+			  success: function (rows) {
+				  vm.contentList = rows.rows,
+						  vm.contentPage = rows.totalPage,
+						  vm.pageNum = rows.pageNum,
+						  vm.pageSize = rows.pageSize,
+						  vm.total = rows.total
+			  },
+			  error: function () {
+				  alert("系统错误，请联系管理员！");
+			  }
+		  })
+	  }
+
+	  //首页
+	  function shouye() {
+		  if (vm.pageNum == 1) {
+			  alert("当前页已经是第一页");
+		  } else {
+			  var n=1;
+			  search(n);
+		  }
+	  }
+	  //上一页
+	  function shangyiye() {
+		  if (vm.pageNum == 1) {
+			  alert("当前页已经是第一页");
+		  }else{
+			  search(vm.pageNum-1);
+		  }}
+	  //下一页
+	  function xiayiye() {
+		  if ((vm.pageNum) >= (vm.total-1)) {
+			  alert("当前页已经是最后一页");
+		  }else{
+			  search(vm.pageNum+1);
+		  }
+	  }
+	  //尾页
+	  function weiye() {
+		  if (vm.pageNum == (vm.total-1)) {
+			  alert("前页已经是最后一页");
+		  } else {
+			  search((vm.total-1));
+		  }
+	  }
+
+	  var contentVUE = new Vue({
+		  el: '#content_add',
+		  data: {
+			  content: ""
+		  }
+	  })
+	  //删除
+	  function delContentType() {
+		  var tbodyObj = document.getElementById('dataList');
+		  var id =[];
+		  $("table :checkbox").each(function(key,value){
+			  if($(value).prop('checked')){
+				  id.push(tbodyObj.rows[key].cells[1].innerHTML);
+			  }
+		  })
+		  $.ajax({
+			  type: "POST",
+			  dataType:"json",
+			  url: "../content/delete.do",
+			  traditional:true,
+			  data: {
+				  ids: id
+			  },
+			  success: function (data) {
+				  if (data) {
+					  alert("恭喜您成功删除选中的广告")
+					  location.reload();
+				  } else {
+					  alert("删除失败，请重新操作!")
+					  location.reload();
+				  }
+			  }
+		  });
+	  }
+	  //新增
+	  function addEmp() {
+		  $.ajax({
+			  url:'../content/add.do',
+			  type:'post',
+			  data:$("#addContentTypeForm").serialize(),
+			  dataType:'json',
+			  success:function(data){
+				  if(data){
+					  location.reload();
+				  }else{
+					  alert("添加失败")
+				  }
+			  }
+		  })
+	  }
+
+	  //修改回显
+	  function update(id) {
+		  $.ajax({
+			  url:'../content/findOne.do',
+			  type:'post',
+			  data:{id:id},
+			  dataType:'',
+			  success:function(data) {
+				  $('#ide').val(data.id);
+				  $('#categoryId').val(data.categoryId);
+				  $('#title').val(data.title);
+				  $('#url').val(data.url);
+				  $('#pic').val(data.pic);
+				  $('#status').val(data.status);
+				  $('#sortOrder').val(data.sortOrder);
+			  }
+		  })
+	  }
+
+  </script>
+
+</body>
+
+
+</html>
